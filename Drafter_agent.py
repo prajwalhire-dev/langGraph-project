@@ -94,15 +94,15 @@ def our_agent(state:AgentState) -> AgentState:
         user_message = HumanMessage(content=user_input)
     else:
         user_input = input("\nWhat would you like to do with the document?")
-        print(f"\n USER : {user_input}")
+        print(f"\n 🧑🏻 USER : {user_input}")
         user_message = HumanMessage(content=user_input)
     
     all_messages = [system_prompt] + list(state['messages']) + [user_message]
 
     response = model.invoke(all_messages)
-    print(f"\n AI : {response.content}")
+    print(f"\n 🤖 AI : {response.content}")
     if hasattr(response, "tool_calls") and response.tool_calls:
-        print(f" USING TOOLS: {[tc['name'] for tc in response.tool_calls]}")
+        print(f" 🛠️ USING TOOLS: {[tc['name'] for tc in response.tool_calls]}")
     
     return {"messages": list(state['messages']) + [user_message, response]}
 
@@ -129,7 +129,7 @@ def print_messages(messages):
         return 
     for message in messages[-3:]:
         if isinstance(message, ToolMessage):
-            print(f"\n Tool Result : {message.content}")
+            print(f"\n ⚙️ Tool Result : {message.content}")
 
 
 graph = StateGraph(AgentState)
