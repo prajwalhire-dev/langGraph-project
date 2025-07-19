@@ -18,13 +18,49 @@ from langgraph.prebuilt import ToolNode
 
 load_dotenv()
 
-#Annotated : provides additional context eithout affecting the type itself
+#Annotated : provides additional context without affecting the type itself
 #Sequence : To automatically handle the state updates for sequence such as by adding new messages to a chat history.
 
 #About Reducer function
 #1. Rule that controls how updates from nodes are combined with the existing state.
 #2. Tells us how to merge new data into the current state.
 #3. Without a reducer, updates would have replaced the existing value entirely!
+
+# --- EXPLANATION: Annotated, Sequence, BaseMessage, add_messages ---
+# 1. Sequence[BaseMessage]:
+#    - Sequence means a list (or any ordered collection).
+#    - BaseMessage is the parent class for all message types (user, system, tool, etc.).
+#    - Example:
+#        messages = [SystemMessage("Hello"), ToolMessage("Result", tool_call_id="123")]
+#    - This lets you store the entire chat history as a list of messages.
+#
+# 2. Annotated[..., add_messages]:
+#    - Annotated lets you attach extra metadata to a type.
+#    - Here, we attach the 'add_messages' reducer function.
+#    - This tells LangGraph how to update the 'messages' list:
+#        - Instead of replacing the whole list, new messages are appended.
+#        - Ensures chat history grows as the agent interacts.
+#    - Example:
+#        If current messages = [A, B] and new = [C], after update: [A, B, C]
+#
+# 3. BaseMessage:
+#    - The fundamental message type in LangChain.
+#    - All messages (user, system, tool) inherit from BaseMessage.
+#    - This allows the agent to handle different message types in a unified way.
+#
+# 4. What happens if you DON'T use these?
+#    - Without Sequence: You couldn't store multiple messages (no chat history).
+#    - Without BaseMessage: You couldn't mix different message types (user, tool, system).
+#    - Without Annotated + add_messages: Each update would overwrite the message list, losing history.
+#      Example: If you set messages = [C], you lose [A, B].
+#    - With this setup, LangGraph automatically appends new messages, keeping the full interaction history.
+#
+# --- SUMMARY ---
+# This pattern makes state updates robust and automatic.
+# You don't have to manually merge message histories.
+# Keeps all agent interactions in order for context.
+# ---------------------------------------------------
+
 
 class AgentState(TypedDict):
     # messages:
